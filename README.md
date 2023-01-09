@@ -9,5 +9,5 @@ The layout of the materials see them split into 5 areas. All have R scipts and p
 1) Introduction to R
 2) Introduction to dpylr
 3) Visualisation
-4) Statistical analysis
-5) Using R for Data Science
+4) Using R for Data Science
+5) Reproducible analysis (rmarkdown)
