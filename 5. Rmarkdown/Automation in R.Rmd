@@ -1,0 +1,92 @@
+---
+title: "Session 5, Automation in R"
+output: html_document
+---
+```{r setup}
+knitr::opts_chunk$set(error = TRUE)
+```
+
+I will use previous session examples to show how to present these in Rmarkdown
+Rmarkdown can be found here https://rmarkdown.rstudio.com/, with cheatsheet here https://www.rstudio.com/wp-content/uploads/2015/02/rmarkdown-cheatsheet.pdf
+Rmarkdown provides a way to effectively communicate your code to stakeholders in a reproducible manner, you can choose how much code you want people to see. Have a play around with this Rmarkdown document, make sure all code is pointing at the correct data then add/subtract various chunk code to see how everything changes.
+
+To start an Rmarkdown document of your own open an R script then save it with the .Rmd extension, like this script
+To output a html document, notice the "output: html_document" code above. To output,press on knit at the top of this screen , and then knit to HTML. You should be taken to another screen and see something similar to the output provided as a HTML document in the learning materials.
+To run individual code chunks, click on the green arrow in the top right hand corner of the grey boxes. You can use this to test you code chunks before knitting.
+
+You can use "```" to start a code chunk, then control what the viewer sees. You have to start each code chuck with the code type you start with, either r, python etc.
+```{r include = TRUE}
+library(rmarkdown)
+library(ggplot2)
+library(knitr)
+library(reticulate)
+```
+
+If I wanted to use another language I would have to define the language in the top line and have the reticulate package installed (for python) - this will not always work on government laptops as there is a possibility you do not have access to python
+```{python eval=FALSE, include=FALSE}
+x = 42 * 2
+print(x)
+```
+
+# Use Hash's to
+## Develop different
+### Title sizes
+
+If I didn't want the viewer to see the code I would have used include = FALSE in the top line
+
+We will now repeat some of the visualisations from session 3 and 4 to take a look at the all rounder data, but this time, use Rmarkdown to make the data presentable to an audience (with some code that might be useful when packaging this up)
+
+```{r loading in data, include=TRUE}
+setwd("C:/Users/lby76f/Desktop/Teaching/Session 1")
+all_rounders<-read.csv("All_rounders.csv", header=TRUE, row.names = 1)
+all_rounders$hun<-ifelse(all_rounders$Hundreds == 0, 'No', 'Yes')
+all_rounders$average_bin<-ifelse(all_rounders$Ave.1 < 25, "Bowling average under 25",
+                                 ifelse(all_rounders$Ave.1 < 30, "Bowling average 25-30",
+                                        ifelse(all_rounders$Ave.1 < 35, "Bowling average 30-35", "Bowling average over 35")))
+```
+
+```{r ggplot, echo = FALSE, fig.cap = "All rounders 1900-2022 seperated by bowling average", message = FALSE}
+ggplot(data = all_rounders, 
+       mapping = aes(x = Runs, y = HS, color = hun)) +
+  geom_point() +
+  geom_smooth(method = "glm") +
+  facet_wrap(~average_bin) +
+  labs(title = "International all rounders",
+       subtitle = "1900 - 2022",
+       x = "Total Runs",
+       y = "High Score",
+       color = "Have they got a hundred?") +
+  theme_bw()
+```
+
+## Data Science output
+```{r data science, include=TRUE, fig.cap="Hierarchial clustering"}
+dis<-dist(all_rounders[-c(9, 10)], method="euclidean")
+clus<-hclust(dis)
+plot(clus)
+```
+
+## PCA
+```{r PCA, echo=FALSE, fig.cap="PCA for all rounders"}
+all_rounders2<-all_rounders[,-c(2, 4, 7, 9, 10)]
+cric_pca<-prcomp(all_rounders2, centre = TRUE, scale. = TRUE)
+summary(cric_pca)
+
+library(ggbiplot)
+g<-ggbiplot(cric_pca,
+         obs.scale = 1,
+         var.scale = 1,
+         groups = all_rounders$hun,
+         ellipse = TRUE) +
+  theme_bw () +
+  labs(title = "International all rounders",
+         subtitle = "1900 - 2022",
+       color = "Have they got a hundred?")
+g
+```
+
+## Rendering output
+At the end of your code you can knit your Rmarkdown files to a hmtl or pdf using the button on the top left or call the rmarkdown::render function in the console
+
+## Summary
+Have a play around with Rmarkdown but hopefully you can see how it would be useful when communicating and creating professional looking documents that include your code. I tend to develop my code in development scripts before making it official in an Rmarkdown document - this way my analysis can be easily repeated with different data while keeping the formatting and analysis consistent between experiments.
