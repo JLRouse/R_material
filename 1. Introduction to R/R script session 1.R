@@ -175,7 +175,7 @@ Dollar(20)
 
 Euro<-function(pounds) {
   euro<-pounds*1.16
-  return(paste('£',euro))
+  return(paste('Â£',euro))
 }
 Euro(20)
 
